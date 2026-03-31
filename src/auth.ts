@@ -1,48 +1,50 @@
-import { connect } from "http2"
-import NextAuth from "next-auth"
-import Credentials, { CredentialInput, CredentialsConfig } from "next-auth/providers/credentials"
-import connectToDB from "./lib/db"
-import credentials from "next-auth/providers/credentials"
-import User from "./models/user.model"
-import { request } from "http"
-import email from "next-auth/providers/email"
- 
+/* Authentication means who r u and authorization is what can u do ? */
+import { connect } from "http2";
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import connectToDB from "./lib/db";
+import bcrypt from "bcryptjs";
+import User from "./models/user.model";
+
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
+    //credentials and google procider
     Credentials({
-  credentials: {
-    email: {
-      type: "email",
-      label: "Email",
-      placeholder: "johndoe@gmail.com",
-    },
-    password: {
-      type: "password",
-      label: "Password",
-      placeholder: "*****",
-    },
-  },
-},
-  async authorize(credentials, request) {
-          if(: any!credentials: any.email || !credentials.password) {
-             throw Error("missing_credentials")
-            }
-            const email=credentials.email;
-            const password=credentials.password;
-            await connectToDB()
-            const user=await User.findOne({email})
-            if (: any!user: any) {
-                throw Error("user doesnt exist!")
-            }
-            
-    
-    // Here you would typically fetch the user
-    //  from your database
-    },
+      credentials: {
+        email: {
+          type: "email",
+          label: "Email",
+          placeholder: "johndoe@gmail.com",
+        },
+        password: {
+          type: "password",
+          label: "Password",
+          placeholder: "*****",
+        },
+      },//authorize function return user
+      async authorize(credentials, request) {
+        if(!credentials.email || !credentials.password) {
+          throw new Error("Email and password are required");
+        }
+        const email = credentials.email;
+        const password = credentials.password as string;
+        await connectToDB();
+        const user = await User.findOne({ email });
+        if (!user) {
+          throw new Error("No user found with the email");
+        }
+        const isMatch= await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          throw new Error("Invalid password");
+        }
+        return {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        };
+      },
+    })
+  ],
 })
-    ],
-})
-
-function authorize(credentials: <CredentialsInputs extends Record<string, CredentialInput> = Record<string, CredentialInput>>(config: Partial<CredentialsConfig<CredentialsInputs>>) => CredentialsConfig, request: any): any {
-    throw new Error("Function not implemented.")
-}
