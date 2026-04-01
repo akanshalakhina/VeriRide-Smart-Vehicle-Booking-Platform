@@ -1,6 +1,6 @@
 import React from 'react'
 
-function HeroSection() {
+function AuthModel() {
   return (
     <div>
       
@@ -8,4 +8,4 @@ function HeroSection() {
   )
 }
 
-export default HeroSection
+export default AuthModel
