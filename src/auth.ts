@@ -1,5 +1,4 @@
 /* Authentication means who r u and authorization is what can u do ? */
-import { connect } from "http2";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
@@ -55,6 +54,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   //cookies contain session id which is unique identifier for login session
   //“Cookies store small data in browser, sessions store user data on server using a session ID, and tokens (JWT) store authentication data on the client for stateless authentication.”
   callbacks: {
+    async signIn({user, account}) {
+      await connectToDB();
+      let dbUser=await User.findOne({email:user.email});
+      if(account?.provider=="google"){
+        if(!dbUser){
+          await User.create({
+            name:user.name,
+            email:user.email,
+            role:"user",
+  
+          })
+          dbUser=await User.findOne({email:user.email});
+        }
+        
+      }
+      if(dbUser){
+        user.id=dbUser._id
+        user.role=dbUser.role
+      }
+      return true;
+    },
+      // Custom logic for sign-in
+    },
     async jwt({ token, user }: { token: any; user: any }) {
       token.name = user.name;
       token.id = user.id;
