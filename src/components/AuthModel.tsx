@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { MotionConfig } from "motion/react";
 import React, { use, useState } from "react";
 import { Mail, X, Lock, User } from "lucide-react";
@@ -17,17 +17,19 @@ type setType = "login" | "signup" | "Otp"; //Union type for step state
 function AuthModel({ open, onClose }: propType) {
   const [step, setStep] = useState<setType>("login");
   return (
-    <>
+    <AnimatePresence>
       {open && (
-        <>
+        <> //AnimatePresence is used to animate components that are being removed from the React tree. It allows you to define exit animations for components that are leaving the DOM, providing a smoother and more visually appealing transition when elements are removed. 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-md"
           >
             <motion.div
               initial={{ y: 40, scale: 0.95, opacity: 0 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 40, opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
               className="fixed inset-0 z-[100] flex items-center justify-center px-4"
             >
@@ -142,7 +144,7 @@ function AuthModel({ open, onClose }: propType) {
           </motion.div>
         </>
       )}
-    </>
+    </AnimatePresence>
   );
 }
 /*Parent controls state (open)
