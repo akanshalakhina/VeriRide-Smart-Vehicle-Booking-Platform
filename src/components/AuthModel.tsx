@@ -1,8 +1,10 @@
 "use client";
+
 import { motion } from "motion/react";
 import { MotionConfig } from "motion/react";
-import React, { use } from "react";
-import { X } from "lucide-react";
+import React, { use, useState } from "react";
+import { Mail, X } from "lucide-react";
+import Image from "next/image";
 /*open: boolean → true/false (is modal open?)
 onClose: () => void → a function with no return
  This is called Type Definition (TypeScript)*/
@@ -10,7 +12,10 @@ type propType = {
   open: boolean;
   onClose: () => void;
 }; //Destructuring props which Extract values directly from object
+type setType='login' | 'signup' | 'Otp' //Union type for step state
+
 function AuthModel({ open, onClose }: propType) {
+  const[step,setStep]=useState<setType>("login")
   return (
     <>
       {open && (<>
@@ -34,8 +39,39 @@ function AuthModel({ open, onClose }: propType) {
               <h1 className="text-3xl font-extrabold trackking-wideset">VERIRIDE</h1>
               <p className="mt-1 text-xs text-gray-500">Premium Vechile Booking</p>
               
-              
+            </div>
+            <button
+              type="button"
+              className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition"
+            >
+              <Image src="/google.png" alt='Google' width={20} height={20}/>
+              Continue with Google
           
+            </button>
+            <div className='flex items-center gap-4 my-6'>
+              <div className='flex-1 h-px bg-black/10'/>
+              <div className="text-xs text-gray-500">OR</div>
+              <div className='flex-1 h-px bg-black/10'/>
+            </div>
+            <div>
+            {step == "login" && (
+              <motion.div
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              >
+                <h1 className="text-xl font-semibold">Welcome back</h1>
+                <div className="mt-5 space-y-4">
+                  <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
+                    <Mail size={18} className="text-gray-500"/>
+                    <input type="text" placeholder="Email" className="bg-transparent border-none focus:outline-none text-sm"/>
+
+                  </div>
+                  
+                </div>
+              </motion.div>
+              
+
+            )}
             </div>
             </div>
 
@@ -51,5 +87,4 @@ Passes it as prop
 Child (AuthModel) reads it
 When close button clicked → onClose() runs
 Parent updates state → modal closes */
-export default AuthModel;
 export default AuthModel;
