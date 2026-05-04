@@ -132,7 +132,7 @@ function AuthModel({ open, onClose }: propType) {
                         </button>
                       </div>
                       <p className=" mt-6 text-center text-sm text-gray-500">
-                        Already have an account? <div onClick={()=>setStep ("login")} className="text-black font-medium hover:underline">Log in</div>
+                        Already have an account? <div onClick={()=>setStep ("login")} className="text-black font-medium hover:underline">Login</div>
                       </p>
                     </motion.div>
                   )}
