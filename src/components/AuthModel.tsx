@@ -2,9 +2,10 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { MotionConfig } from "motion/react";
-import React, { use, useState } from "react";
+import React, {  useState } from "react";
 import { Mail, X, Lock, User } from "lucide-react";
 import Image from "next/image";
+import axios from "axios";
 /*open: boolean → true/false (is modal open?)
 onClose: () => void → a function with no return
  This is called Type Definition (TypeScript)*/
@@ -16,10 +17,33 @@ type setType = "login" | "signup" | "Otp"; //Union type for step state
 
 function AuthModel({ open, onClose }: propType) {
   const [step, setStep] = useState<setType>("login");
+  const [name, setName] = useState("");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const handleSignUp = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.post("/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+      console.log(data);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.log((error as any).response?.data || (error as any).message);
+    }
+  };
+
   return (
-    <AnimatePresence>
+    <AnimatePresence> /*AnimatePresence: Animate presence of components (mounting/unmounting)*/
       {open && (
-        <> //AnimatePresence is used to animate components that are being removed from the React tree. It allows you to define exit animations for components that are leaving the DOM, providing a smoother and more visually appealing transition when elements are removed. 
+        <>
+          {" "}
+        
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -41,11 +65,11 @@ function AuthModel({ open, onClose }: propType) {
                   <X size={20} />
                 </div>
                 <div className="mb-6 text-center">
-                  <h1 className="text-3xl font-extrabold trackking-wideset">
+                  <h1 className="text-3xl font-extrabold tracking-wideset">
                     VERIRIDE
                   </h1>
                   <p className="mt-1 text-xs text-gray-500">
-                    Premium Vechile Booking
+                    Premium Vehicle Booking
                   </p>
                 </div>
                 <button
@@ -79,6 +103,8 @@ function AuthModel({ open, onClose }: propType) {
                             type="text"
                             placeholder="Email"
                             className="bg-transparent border-none focus:outline-none text-sm"
+                            onChange={(e) => setEmail(e.target.value)}
+                            value={email}
                           />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
@@ -87,6 +113,8 @@ function AuthModel({ open, onClose }: propType) {
                             type="password"
                             placeholder="Password"
                             className="bg-transparent border-none focus:outline-none text-sm"
+                            onChange={(e) => setPassword(e.target.value)}
+                            value={password}
                           />
                         </div>
                         <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">
@@ -94,7 +122,13 @@ function AuthModel({ open, onClose }: propType) {
                         </button>
                       </div>
                       <p className=" mt-6 text-center text-sm text-gray-500">
-                        Don't have an account? <div onClick={()=>setStep ("signup")} className="text-black font-medium hover:underline">Sign up</div>
+                        Don't have an account?{" "}
+                        <span
+                          onClick={() => setStep("signup")}
+                          className="text-black font-medium hover:underline cursor-pointer"
+                        >
+                          Sign up
+                        </span>
                       </p>
                     </motion.div>
                   )}
@@ -103,22 +137,28 @@ function AuthModel({ open, onClose }: propType) {
                       initial={{ x: 20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                     >
-                      <h1 className="text-xl font-semibold">Create an account</h1>
+                      <h1 className="text-xl font-semibold">
+                        Create an account
+                      </h1>
                       <div className="mt-5 space-y-4">
-                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
+                        <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <User size={18} className="text-gray-500" />
                           <input
                             type="text"
                             placeholder="Full Name"
                             className="w-full bg-transparent border-none focus:outline-none text-sm"
+                            onChange={(e) => setName(e.target.value)}
+                            value={name}
                           />
-                        </div> 
+                        </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Mail size={18} className="text-gray-500" />
                           <input
                             type="text"
                             placeholder="Email"
                             className="w-full bg-transparent border-none focus:outline-none text-sm"
+                            onChange={(e) => setEmail(e.target.value)}
+                            value={email}
                           />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
@@ -127,14 +167,26 @@ function AuthModel({ open, onClose }: propType) {
                             type="password"
                             placeholder="Password"
                             className="w-full bg-transparent border-none focus:outline-none text-sm"
+                            onChange={(e) => setPassword(e.target.value)}
+                            value={password}
                           />
                         </div>
-                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">
+                        <button
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition"
+                          onClick={handleSignUp}
+                        >
                           Sign Up
                         </button>
                       </div>
-                      <p className=" mt-6 text-center text-sm text-gray-500">
-                        Already have an account? <div onClick={()=>setStep ("login")} className="text-black font-medium hover:underline">Login</div>
+
+                      <p className="mt-6 text-center text-sm text-gray-500">
+                        Already have an account?{" "}
+                        <div
+                          onClick={() => setStep("login")}
+                          className="text-black font-medium hover:underline cursor-pointer"
+                        >
+                          Login
+                        </div>
                       </p>
                     </motion.div>
                   )}
