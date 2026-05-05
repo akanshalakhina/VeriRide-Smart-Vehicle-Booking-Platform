@@ -15,7 +15,7 @@ type propType = {
   open: boolean;
   onClose: () => void;
 }; //Destructuring props which Extract values directly from object
-type setType = "login" | "signup" | "Otp"; //Union type for step state
+type setType = "login" | "signup" | "otp"; //Union type for step state
 
 function AuthModel({ open, onClose }: propType) {
   const [step, setStep] = useState<setType>("login");
@@ -25,9 +25,9 @@ function AuthModel({ open, onClose }: propType) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
-  const[otp, setOtp]=useState(["","","","","","","",""]);
-  
-  const session=useSession();
+  const [otp, setOtp] = useState(["", "", "", "", "", "", "", ""]);
+
+  const session = useSession();
   console.log(session);
   const handleSignUp = async () => {
     setLoading(true);
@@ -38,6 +38,7 @@ function AuthModel({ open, onClose }: propType) {
         password,
       });
       console.log(data);
+      setStep("otp");
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
@@ -55,15 +56,28 @@ function AuthModel({ open, onClose }: propType) {
     setLoading(false);
     console.log(res);
   };
-  const handleGoogleLogin = async()=>{
+  const handleGoogleLogin = async () => {
     await signIn("google");
+  };
 
-  }
+  const handleChangeOtp = (index: number, value: string) => {
+    if (!/^[0-9]$/.test(value) && value !== "") return;
+    const updated = [...otp];
+    updated[index] = value;
+    setOtp(updated);
+    if(value && index<otp.length-1){
+      const nextInput = document.getElementById(`otp-${index+1}`);
+      nextInput?.focus();
+    }
+    if(!value && index>0){
+      const prevInput = document.getElementById(`otp-${index-1}`);
+      prevInput?.focus();
+    }
+//This function updates the OTP state when a user types in the OTP input fields. It checks if the input is a digit, updates the corresponding index in the OTP array, and automatically focuses the next input field if a value is entered or the previous one if it's deleted.
 
+  };
   return (
     <AnimatePresence>
-      {" "}
-      /*AnimatePresence: Animate presence of components (mounting/unmounting)*/
       {open && (
         <>
           {" "}
@@ -142,7 +156,7 @@ function AuthModel({ open, onClose }: propType) {
                           />
                         </div>
                         <button
-                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition"
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex justify-center items-center"
                           onClick={handleLogin}
                         >
                           {!loading ? (
@@ -214,7 +228,7 @@ function AuthModel({ open, onClose }: propType) {
                           onClick={handleSignUp}
                         >
                           {!loading ? (
-                            "Sign Up"
+                            "Send OTP"
                           ) : (
                             <CircleDashed
                               size={18}
@@ -235,6 +249,29 @@ function AuthModel({ open, onClose }: propType) {
                           Login
                         </div>
                       </p>
+                    </motion.div>
+                  )}
+                  {step == "otp" && (
+                    <motion.div
+                      key="otp"
+                      initial={{ x: 20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -20, opacity: 0 }}
+                    >
+                      <h2 className="text-xl font-semibold">Verify Email</h2>
+                      <div className="mt-6 flex justify-between gap-2">
+                        {otp.map((digit, i) => (
+                          <input
+                            key={i}
+                            id={`otp-${i}`}
+                            value={digit}
+                            maxLength={1}
+                            className="w-10 h-12 border sm:w-12 border-black/20 rounded-xl text-center text-lg font-semibold bg-white outline-none"
+                            onChange={(e) => handleChangeOtp(i, e.target.value)}
+                          />
+                        ))}
+                      </div>
+                      <button className='mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex justify-center items-center'>Verify and Create Account</button>
                     </motion.div>
                   )}
                 </div>
