@@ -77,12 +77,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
       // Custom logic for sign-in
     },
-    async jwt({ token, user }: { token: any; user: any }) {
-      token.name = user.name;
-      token.id = user.id;
-      token.email = user.email;
-      token.role = user.role;
-      
+    async jwt({ token, user }: { token: any; user?: any }) {
+      if (user) {
+        token.name = user.name;
+        token.id = user.id;
+        token.email = user.email;
+        token.role = user.role;
+      }
+
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {

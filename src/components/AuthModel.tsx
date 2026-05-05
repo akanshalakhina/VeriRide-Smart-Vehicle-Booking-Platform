@@ -2,10 +2,12 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { MotionConfig } from "motion/react";
-import React, {  useState } from "react";
-import { Mail, X, Lock, User } from "lucide-react";
+import React, { useState } from "react";
+import { Mail, X, Lock, User, CircleDashed } from "lucide-react";
 import Image from "next/image";
 import axios from "axios";
+import { signIn } from "next-auth/webauthn";
+import { useSession } from "next-auth/react";
 /*open: boolean → true/false (is modal open?)
 onClose: () => void → a function with no return
  This is called Type Definition (TypeScript)*/
@@ -22,6 +24,11 @@ function AuthModel({ open, onClose }: propType) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const[otp, setOtp]=useState(["","","","","","","",""]);
+  
+  const session=useSession();
+  console.log(session);
   const handleSignUp = async () => {
     setLoading(true);
     try {
@@ -32,18 +39,34 @@ function AuthModel({ open, onClose }: propType) {
       });
       console.log(data);
       setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
-      console.log((error as any).response?.data || (error as any).message);
+
+      setErr(error.response.data.message ?? "Something went wrong ");
     }
   };
+  const handleLogin = async () => {
+    setLoading(true);
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+    setLoading(false);
+    console.log(res);
+  };
+  const handleGoogleLogin = async()=>{
+    await signIn("google");
+
+  }
 
   return (
-    <AnimatePresence> /*AnimatePresence: Animate presence of components (mounting/unmounting)*/
+    <AnimatePresence>
+      {" "}
+      /*AnimatePresence: Animate presence of components (mounting/unmounting)*/
       {open && (
         <>
           {" "}
-        
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -75,6 +98,7 @@ function AuthModel({ open, onClose }: propType) {
                 <button
                   type="button"
                   className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition"
+                  onClick={handleGoogleLogin}
                 >
                   <Image
                     src="/google.png"
@@ -117,7 +141,19 @@ function AuthModel({ open, onClose }: propType) {
                             value={password}
                           />
                         </div>
-                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">
+                        <button
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition"
+                          onClick={handleLogin}
+                        >
+                          {!loading ? (
+                            "Log In"
+                          ) : (
+                            <CircleDashed
+                              size={18}
+                              color="white"
+                              className="animate-spin"
+                            />
+                          )}
                           Login
                         </button>
                       </div>
@@ -171,10 +207,21 @@ function AuthModel({ open, onClose }: propType) {
                             value={password}
                           />
                         </div>
+                        {err && <p className="text-red-500 text-sm">*{err}</p>}
                         <button
-                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition"
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex-justify-center items-center gap-2"
+                          disabled={loading}
                           onClick={handleSignUp}
                         >
+                          {!loading ? (
+                            "Sign Up"
+                          ) : (
+                            <CircleDashed
+                              size={18}
+                              color="white"
+                              className="animate-spin"
+                            />
+                          )}
                           Sign Up
                         </button>
                       </div>
