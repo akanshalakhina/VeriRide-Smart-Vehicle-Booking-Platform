@@ -4,7 +4,10 @@ interface IUser extends Document {
     name: string;
     email: string;
     password?: string; //password is optional
-    role:"user" | "partner" | "admin";
+    role:"user" | "partner" | "admin"
+    isEmailVerified?:boolean //email verification is optional  
+    otp?:string, //otp for email verification
+    otpExpiresAt?:Date //otp expiry time
     createdAt:Date;
     updatedAt:Date;
 
@@ -27,6 +30,16 @@ const userSchema = new mongoose.Schema<IUser>({
         type: String,
         default: "user",
         enum: ["user", "partner", "admin"]
+    },
+    isEmailVerified:{
+        type: Boolean,
+        default: false
+    },
+    otp:{
+        type: String,
+    },
+    otpExpiresAt:{
+        type: Date,
     }
 
 },{timestamps:true}); //created and update fields will be formed

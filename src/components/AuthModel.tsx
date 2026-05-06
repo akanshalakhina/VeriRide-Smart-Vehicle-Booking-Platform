@@ -45,6 +45,20 @@ function AuthModel({ open, onClose }: propType) {
 
       setErr(error.response.data.message ?? "Something went wrong ");
     }
+    const handleVerifyEmail = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.post("/api/auth/verify-email", {
+        email,otp:otp.join("") //joining otp array to form a string
+      });
+      setStep("login");
+      console.log(data);
+      setLoading(false);
+    } catch (error: any) {
+      setLoading(false);
+      setErr(error.response.data.message ?? "Something went wrong ");
+    }
+      
   };
   const handleLogin = async () => {
     setLoading(true);
